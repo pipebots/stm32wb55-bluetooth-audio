@@ -1,2 +1,5 @@
-# stm32wb55-bluetooth-audio
-tA repo to prove that the microphone on the companion board works as a BlueTooth device.
+# STM32WB5 Bluetooth Audio
+
+A repo to prove that the microphone on the companion board works as a Bluetooth device.
+
+
