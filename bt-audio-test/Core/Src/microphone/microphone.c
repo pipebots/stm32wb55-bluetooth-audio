@@ -7,11 +7,12 @@
 #include <cmsis_os.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "main.h"
 #include "stm32wbxx_hal.h"
 
-static const char * m_filename = NULL;
+#include "companion_audio.h"
 
 // Thread variables.
 static osThreadId_t m_thread_handle;
@@ -21,46 +22,58 @@ static const osThreadAttr_t m_thread_attributes = {
     // 4096 needed for printf and float.
     .stack_size = 1024 * 4
 };
+
+// File variables.
+static const char * m_filename = NULL;
 static int32_t m_file_size_bytes = 0;
 
-//void microphone_init(void) {
-//  /*
-//  void stm_serial_init(UART_HandleTypeDef * uart_handle)
-//  {
-//    if (uart_handle) {
-//      m_uart_handle = uart_handle;
-//      HAL_UARTEx_ReceiveToIdle_DMA(
-//        m_uart_handle, (uint8_t *)m_rx_buffer,
-//        RX_BUFFER_SIZE);
-//      __HAL_DMA_DISABLE_IT(m_uart_handle->hdmarx, DMA_IT_HT);
-//      m_rx_message_queue =
-//        osMessageQueueNew(m_msg_queue_len, IPC_ESP_MAX_MESSAGE_LENGTH, NULL);
-//    }
-//  }
-//  */
-//
-//}
-//
-//void microphone_start(void) {
-//  /*
-//  HAL_StatusTypeDef HAL_SAI_Receive_DMA(SAI_HandleTypeDef *hsai, uint8_t *pData, uint16_t Size);
-//  HAL_StatusTypeDef HAL_SAI_DMAPause(SAI_HandleTypeDef *hsai);
-//  HAL_StatusTypeDef HAL_SAI_DMAResume(SAI_HandleTypeDef *hsai);
-//  HAL_StatusTypeDef HAL_SAI_DMAStop(SAI_HandleTypeDef *hsai);
-//  */
-//}
-//
-//size_t microphone_get(uint32_t * buffer, size_t buffer_size) {
-//  size_t count = 0;
-//  // Bodge.
-//  buffer[0] = buffer[0] + count + 1;
-//  count = 1;
-//  // Should be something like this.
-//  // Copy audio words from internal buffer to given buffer until RX buffer
-//  // empty or given buffer is full.
-//  return count;
-//}
+// Audio variables.
+uint16_t m_pdm_buffer[((((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY) / 1000) * MAX_DECIMATION_FACTOR) / 16)*
+                    N_MS_PER_INTERRUPT ];
+uint16_t m_pcm_buffer[((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY) / 1000)  * N_MS_PER_INTERRUPT ];
+COMPANION_AUDIO_Init_t m_mic_params;
 
+
+/**
+  * @brief  User function that is called when 1 ms of PDM data is available.
+  *       In this application only PDM to PCM conversion and USB streaming
+  *                  is performed.
+  *       User can add his own code here to perform some DSP or audio analysis.
+  * @param  none
+  * @retval None
+  */
+void AudioProcess(void)
+{
+  if (COMPANION_AUDIO_PDMToPCM(COMPANION_AUDIO_INSTANCE, (uint16_t *)m_pdm_buffer, m_pcm_buffer) != BSP_ERROR_NONE)
+  {
+    Error_Handler();
+  }
+  // TODO Do something useful with the data.
+
+}
+
+
+/**
+  * @brief  Half Transfer user callback, called by BSP functions.
+  * @param  None
+  * @retval None
+  */
+void COMPANION_AUDIO_HalfTransfer_CallBack(uint32_t Instance)
+{
+  UNUSED(Instance);
+  AudioProcess();
+}
+
+/**
+  * @brief  Transfer Complete user callback, called by BSP functions.
+  * @param  None
+  * @retval None
+  */
+void COMPANION_AUDIO_TransferComplete_CallBack(uint32_t Instance)
+{
+  UNUSED(Instance);
+  AudioProcess();
+}
 
 static int open_file(const char * filename) {
   int result = -1;
@@ -79,6 +92,17 @@ static int open_file(const char * filename) {
 
 static void receive_data(void *parameter) {
   (void) parameter;
+  m_mic_params.BitsPerSample = 16;
+  m_mic_params.ChannelsNbr = 0;
+  m_mic_params.Device = AUDIO_IN_DIGITAL_MIC;
+  m_mic_params.SampleRate = 16000;
+  m_mic_params.Volume = AUDIO_VOLUME_INPUT;
+
+  if (COMPANION_AUDIO_Init(COMPANION_AUDIO_INSTANCE, &m_mic_params) != BSP_ERROR_NONE)
+  {
+    Error_Handler();
+  }
+
   printf("MIC: Starting receive loop\n");
   while (1) {
     ++m_file_size_bytes;
@@ -126,4 +150,3 @@ void microphone_close() {
   // Power down mic.
   microphone_power(false);
 }
-

@@ -8,6 +8,8 @@
 #ifndef SRC_MICROPHONE_MICROPHONE_H_
 #define SRC_MICROPHONE_MICROPHONE_H_
 
+#include <stddef.h>
+
 /**
  * @file A microphone driver that writes a file to the QSPI Flash chip.
  */
