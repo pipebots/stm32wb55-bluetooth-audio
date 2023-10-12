@@ -19,4 +19,13 @@ NOTE: The companion board microphone can only work if the IMU is NOT fitted as p
 
 ## Driver software
 
+Now to find out what ST have produced to help us mere mortals write some code.
+
+Started with this [series of videos](https://www.youtube.com/playlist?list=PLwqrqfRKpbeIxgnKq1_hTCULCaL7LBHmN).  Whilst interesting, it didn't point me to any code examples but did lead to the following application notes:
+
+* [AN4426: Tutorial for MEMs microphones](https://www.st.com/resource/en/application_note/an4426-tutorial-for-mems-microphones-stmicroelectronics.pdf).  Useful background info on how a MEMs microphone works.
+* [AN5027: Interfacing PDM digital microphones using STM32 MCUs and MPUs](https://www.st.com/resource/en/application_note/an5027-interfacing-pdm-digital-microphones-using-stm32-mcus-and-mpus-stmicroelectronics.pdf).  This doc does kind of show you how to set up the SAI block on the chip (the GUI has changed but it does explain setting up most of the values).
+
+
+
 We need to use DMA transfer to get the data.  I used the code I wrote for the serial comms receiver as inspiration although it worked in a different way to the microphone.

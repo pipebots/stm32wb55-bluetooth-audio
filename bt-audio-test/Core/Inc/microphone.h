@@ -8,12 +8,26 @@
 #ifndef SRC_MICROPHONE_MICROPHONE_H_
 #define SRC_MICROPHONE_MICROPHONE_H_
 
-void microphone_init(void);
+/**
+ * @file A microphone driver that writes a file to the QSPI Flash chip.
+ */
 
-void microphone_start(void);
+/**
+ * @brief Start recording of microphone data to the given file.
+ * @param filename Name of the file to write to.
+ * @return 0 for success, -1 for failure.
+ */
+int microphone_open(const char * filename);
 
-void microphone_stop(void);
+/**
+ * @brief Returns file size in bytes.
+ * @return Size of file in bytes.
+ */
+size_t microphone_get_file_size();
 
-void microphone_get(uint32_t * buffer, size_t count);
+/**
+ * @brief Close any open file.
+ */
+void microphone_close();
 
 #endif /* SRC_MICROPHONE_MICROPHONE_H_ */
