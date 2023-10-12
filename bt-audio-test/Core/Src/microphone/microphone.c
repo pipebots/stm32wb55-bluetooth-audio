@@ -12,7 +12,7 @@
 #include "main.h"
 #include "stm32wbxx_hal.h"
 
-#include "companion_audio.h"
+#include "cca02m2_audio.h"
 
 // Thread variables.
 static osThreadId_t m_thread_handle;
@@ -31,7 +31,7 @@ static int32_t m_file_size_bytes = 0;
 uint16_t m_pdm_buffer[((((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY) / 1000) * MAX_DECIMATION_FACTOR) / 16)*
                     N_MS_PER_INTERRUPT ];
 uint16_t m_pcm_buffer[((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY) / 1000)  * N_MS_PER_INTERRUPT ];
-COMPANION_AUDIO_Init_t m_mic_params;
+CCA02M2_AUDIO_Init_t m_mic_params;
 
 
 /**
@@ -44,7 +44,7 @@ COMPANION_AUDIO_Init_t m_mic_params;
   */
 void AudioProcess(void)
 {
-  if (COMPANION_AUDIO_PDMToPCM(COMPANION_AUDIO_INSTANCE, (uint16_t *)m_pdm_buffer, m_pcm_buffer) != BSP_ERROR_NONE)
+  if (CCA02M2_AUDIO_IN_PDMToPCM(COMPANION_AUDIO_INSTANCE, (uint16_t *)m_pdm_buffer, m_pcm_buffer) != BSP_ERROR_NONE)
   {
     Error_Handler();
   }
