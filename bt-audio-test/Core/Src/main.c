@@ -22,6 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#define  ARM_MATH_CM4
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "microphone.h"
