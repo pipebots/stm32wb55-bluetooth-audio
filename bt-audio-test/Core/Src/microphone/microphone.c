@@ -34,11 +34,11 @@ CCA02M2_AUDIO_Init_t m_mic_params;
  * @retval None
  */
 void AudioProcess(void) {
-//  if (CCA02M2_AUDIO_IN_PDMToPCM(CCA02M2_AUDIO_INSTANCE,
-//                                (uint16_t*) m_pdm_buffer,
-//                                m_pcm_buffer) != BSP_ERROR_NONE) {
-//    Error_Handler();
-//  }
+  if (CCA02M2_AUDIO_IN_PDMToPCM(CCA02M2_AUDIO_INSTANCE,
+                                (uint16_t*) m_pdm_buffer,
+                                m_pcm_buffer) != BSP_ERROR_NONE) {
+    Error_Handler();
+  }
   // TODO Do something useful with the data.
 //  printf("%s: buffer data: 0x%04X, 0x%04X, 0x%04X, 0x%04X\n", __func__,
 //         (unsigned int) m_pcm_buffer[0], (unsigned int) m_pcm_buffer[1],
@@ -81,6 +81,18 @@ static int open_file(const char *filename) {
 }
 
 static void start_dma(SAI_HandleTypeDef *hAudioInSai) {
+  CCA02M2_AUDIO_Init_t MicParams;
+  MicParams.BitsPerSample = 16;
+  MicParams.ChannelsNbr = 4;
+  MicParams.Device = AUDIO_IN_DIGITAL_MIC;
+  MicParams.SampleRate = 16000;
+  MicParams.Volume = AUDIO_VOLUME_INPUT;
+
+  if (CCA02M2_AUDIO_IN_Init(CCA02M2_AUDIO_INSTANCE, &MicParams) != BSP_ERROR_NONE)
+  {
+    Error_Handler();
+  }
+
   // Start DMA.
   int32_t result = CCA02M2_AUDIO_IN_Record(CCA02M2_AUDIO_INSTANCE, (uint8_t *) m_pdm_buffer, AUDIO_IN_BUFFER_SIZE);
   if (result != BSP_ERROR_NONE) {
