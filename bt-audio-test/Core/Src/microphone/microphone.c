@@ -14,24 +14,16 @@
 
 #include "cca02m2_audio.h"
 
-// Thread variables.
-static osThreadId_t m_thread_handle;
-static const osThreadAttr_t m_thread_attributes = { .name = "Microphone",
-    .priority = (osPriority_t) osPriorityNormal,
-    // 4096 needed for printf and float.
-    .stack_size = 1024 * 4 };
-
 // File variables.
 static const char *m_filename = NULL;
 static int32_t m_file_size_bytes = 0;
 
 // Audio variables.
-static uint16_t m_pdm_buffer[((((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY)
-    / 1000) * MAX_DECIMATION_FACTOR) / 16) *
-N_MS_PER_INTERRUPT];
-static uint16_t m_pcm_buffer[((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY)
-    / 1000) * N_MS_PER_INTERRUPT];
-static CCA02M2_AUDIO_Init_t m_mic_params;
+uint16_t m_pdm_buffer[((((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY) / 1000)
+    * MAX_DECIMATION_FACTOR) / 16) * N_MS_PER_INTERRUPT];
+uint16_t m_pcm_buffer[((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY) / 1000)
+    * N_MS_PER_INTERRUPT];
+CCA02M2_AUDIO_Init_t m_mic_params;
 
 /**
  * @brief  User function that is called when 1 ms of PDM data is available.
@@ -42,15 +34,15 @@ static CCA02M2_AUDIO_Init_t m_mic_params;
  * @retval None
  */
 void AudioProcess(void) {
-  if (CCA02M2_AUDIO_IN_PDMToPCM(CCA02M2_AUDIO_INSTANCE,
-                                (uint16_t*) m_pdm_buffer,
-                                m_pcm_buffer) != BSP_ERROR_NONE) {
-    Error_Handler();
-  }
+//  if (CCA02M2_AUDIO_IN_PDMToPCM(CCA02M2_AUDIO_INSTANCE,
+//                                (uint16_t*) m_pdm_buffer,
+//                                m_pcm_buffer) != BSP_ERROR_NONE) {
+//    Error_Handler();
+//  }
   // TODO Do something useful with the data.
-  printf("%s: buffer data: 0x%04X, 0x%04X, 0x%04X, 0x%04X\n", __func__,
-         (unsigned int) m_pcm_buffer[0], (unsigned int) m_pcm_buffer[1],
-         (unsigned int) m_pcm_buffer[2], (unsigned int) m_pcm_buffer[3]);
+//  printf("%s: buffer data: 0x%04X, 0x%04X, 0x%04X, 0x%04X\n", __func__,
+//         (unsigned int) m_pcm_buffer[0], (unsigned int) m_pcm_buffer[1],
+//         (unsigned int) m_pcm_buffer[2], (unsigned int) m_pcm_buffer[3]);
 }
 
 /**
@@ -61,7 +53,7 @@ void AudioProcess(void) {
 void CCA02M2_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance) {
   UNUSED(Instance);
   AudioProcess();
-  }
+}
 
 /**
  * @brief  Transfer Complete user callback, called by BSP functions.
@@ -88,32 +80,18 @@ static int open_file(const char *filename) {
   return result;
 }
 
-static void receive_data(void *parameter) {
-  (void) parameter;
-  m_mic_params.BitsPerSample = 16;
-  m_mic_params.ChannelsNbr = 0;
-  m_mic_params.Device = AUDIO_IN_DIGITAL_MIC;
-  m_mic_params.SampleRate = 16000;
-  m_mic_params.Volume = AUDIO_VOLUME_INPUT;
-
-  if (CCA02M2_AUDIO_IN_Init(CCA02M2_AUDIO_INSTANCE,
-                            &m_mic_params) != BSP_ERROR_NONE) {
-    Error_Handler();
-  }
-
-  printf("MIC: Starting receive loop\n");
-  while (1) {
-    ++m_file_size_bytes;
-    // Get data from queue and write to file.
-//    while((m_file_size_bytes % 10) != 0) {
-//    }
-    printf("MIC: bytes: %ld\n", m_file_size_bytes);
-    osDelay(100);
+static void start_dma(SAI_HandleTypeDef *hAudioInSai) {
+  // Start DMA.
+  int32_t result = CCA02M2_AUDIO_IN_Record(CCA02M2_AUDIO_INSTANCE, (uint8_t *) m_pdm_buffer, AUDIO_IN_BUFFER_SIZE);
+  if (result != BSP_ERROR_NONE) {
+    printf("MIC: ERROR: DMA not started\n");
+  } else {
+    printf("MIC: DMA started OK\n");
   }
 }
 
 static void microphone_power(bool enable) {
-  GPIO_PinState new_state = enable ? GPIO_PIN_RESET : GPIO_PIN_SET;
+  GPIO_PinState new_state = enable ? GPIO_PIN_SET : GPIO_PIN_RESET;
   HAL_GPIO_WritePin(MIC_PWR_GPIO_Port, MIC_PWR_Pin, new_state);
   printf("MIC: %s: %d\n", __func__, new_state);
 }
@@ -125,13 +103,13 @@ static void close_file(void) {
 
 /* API Functions */
 
-int microphone_open(const char *filename) {
+int microphone_open(const char *filename, SAI_HandleTypeDef *hAudioInSai) {
   int result = open_file(filename);
   if (result == 0) {
     // Power up mic.
     microphone_power(true);
-    // Start rx thread.
-    m_thread_handle = osThreadNew(receive_data, NULL, &m_thread_attributes);
+    // Start DMA.
+    start_dma(hAudioInSai);
   }
   return result;
 }

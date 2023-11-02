@@ -17,9 +17,10 @@
 /**
  * @brief Start recording of microphone data to the given file.
  * @param filename Name of the file to write to.
+ * @param hAudioInSai Handle for the SAI block.
  * @return 0 for success, -1 for failure.
  */
-int microphone_open(const char * filename);
+int microphone_open(const char *filename, SAI_HandleTypeDef *hAudioInSai);
 
 /**
  * @brief Returns file size in bytes.

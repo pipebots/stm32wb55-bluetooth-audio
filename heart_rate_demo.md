@@ -47,7 +47,7 @@ off to video 9.
 <https://www.youtube.com/watch?v=1LvfBC_P6eg>
 
 First, locate the binaries directory.  On my PC, they were here:
-`~/STM32Cube/Repository/STM32Cube_FW_WB_V1.14.1/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x`
+`~/STM32Cube/Repository/STM32Cube_FW_WB_V1.17.3/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x`
 
 The release notes `Release_Notes.html` for this binary are important as you
 need to find the start address for the start of each image, so open them up
@@ -60,7 +60,7 @@ First update the Firmware Update Service (FUS) binary.
 3. Connect to the dev board using the `ST-LINK` option.
 4. Press "Start FUS".  It should start.
 5. Press `Read FUS Info` button. You should see some info in the boxes under the button.
-6. Select the file `stm32wb5x_FUS_fw_for_fus_0_5_3.bin`.
+6. Select the file `stm32wb5x_FUS_fw.bin`.
 7. Enter the start address, `0x080EC000` for the dev board.
 8. Press `Firmware Upgrade` button and wait for it to complete.
 
@@ -80,7 +80,7 @@ The code has moved on from the video but it mostly works.  This is what you
 need to do:
 
 1. Import the heart rate code into the STM32cubeIDE from here:
-`~/STM32Cube/Repository/STM32Cube_FW_WB_V1.14.1/Projects/P-NUCLEO-WB55.Nucleo/Applications/BLE/BLE_HeartRate/STM32CubeIDE/.project`
+`~/STM32Cube/Repository/STM32Cube_FW_WB_V1.17.3/Projects/P-NUCLEO-WB55.Nucleo/Applications/BLE/BLE_HeartRate/STM32CubeIDE/.project`
 2. Make the following changes:
 
     ```diff
@@ -131,7 +131,7 @@ video does not tell you how to use the Bluetooth app so here goes.
 
 1. On an Android phone, download and install the `ST BLE Sensor` app using Google Play.  There is an equivalent app for iPhones.
 2. Start the the app on the P-Nucleo board.
-3. On your hone, open the `ST BLE Sensor` app.
+3. On your phone, open the `ST BLE Sensor` app.
 4. Tap `Connect one device`.
 5. You should see an ST app `HRSTM` in the list.  Tap that.
 6. The app should  connect to the app (takes a few seconds) and you should see a big pulsing heart and some other stuff.

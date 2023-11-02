@@ -41,13 +41,13 @@ modification in the application layer developed with the older versions of the d
 
 
 #define N_MS (N_MS_PER_INTERRUPT)
-  
+
 #define AUDIO_IN_CHANNELS 4
 #define AUDIO_IN_SAMPLING_FREQUENCY 16000
 
-#define AUDIO_IN_BUFFER_SIZE            DEFAULT_AUDIO_IN_BUFFER_SIZE  
+#define AUDIO_IN_BUFFER_SIZE            DEFAULT_AUDIO_IN_BUFFER_SIZE
 #define AUDIO_VOLUME_INPUT              64U
-#define CCA02M2_AUDIO_INSTANCE 			0U /*Select 0U or 1U in base of the peripheral used (0U->I2S/SAI 1U->DFSDM)*/
+#define CCA02M2_AUDIO_INSTANCE 			    2U /*Select 0U or 1U in base of the peripheral used (0U->I2S/SAI 1U->DFSDM)*/
 #define CCA02M2_AUDIO_IN_IT_PRIORITY    6U
 
 #if (AUDIO_IN_SAMPLING_FREQUENCY == 8000)
