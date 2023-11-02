@@ -275,23 +275,23 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
     SAI1_client ++;
 
     /**SAI1_A_Block_A GPIO Configuration
-    PC3     ------> SAI1_D1
     PA8     ------> SAI1_CK2
     PA9     ------> SAI1_D2
+    PD6     ------> SAI1_D1
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_3;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF3_SAI1;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
     GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF3_SAI1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_6;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF3_SAI1;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
       /* Peripheral DMA init*/
 
@@ -331,13 +331,13 @@ void HAL_SAI_MspDeInit(SAI_HandleTypeDef* hsai)
       }
 
     /**SAI1_A_Block_A GPIO Configuration
-    PC3     ------> SAI1_D1
     PA8     ------> SAI1_CK2
     PA9     ------> SAI1_D2
+    PD6     ------> SAI1_D1
     */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_3);
-
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_8|GPIO_PIN_9);
+
+    HAL_GPIO_DeInit(GPIOD, GPIO_PIN_6);
 
     /* SAI1 DMA Deinit */
     HAL_DMA_DeInit(hsai->hdmarx);

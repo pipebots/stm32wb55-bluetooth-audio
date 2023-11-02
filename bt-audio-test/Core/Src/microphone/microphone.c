@@ -19,8 +19,8 @@ static const char *m_filename = NULL;
 static int32_t m_file_size_bytes = 0;
 
 // Audio variables.
-uint16_t m_pdm_buffer[((((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY) / 1000)
-    * MAX_DECIMATION_FACTOR) / 16) * N_MS_PER_INTERRUPT];
+uint16_t m_pdm_buffer[((((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY)
+    / 1000) * MAX_DECIMATION_FACTOR) / 16) * N_MS_PER_INTERRUPT];
 uint16_t m_pcm_buffer[((AUDIO_IN_CHANNELS * AUDIO_IN_SAMPLING_FREQUENCY) / 1000)
     * N_MS_PER_INTERRUPT];
 CCA02M2_AUDIO_Init_t m_mic_params;
@@ -40,9 +40,9 @@ void AudioProcess(void) {
     Error_Handler();
   }
   // TODO Do something useful with the data.
-//  printf("%s: buffer data: 0x%04X, 0x%04X, 0x%04X, 0x%04X\n", __func__,
-//         (unsigned int) m_pcm_buffer[0], (unsigned int) m_pcm_buffer[1],
-//         (unsigned int) m_pcm_buffer[2], (unsigned int) m_pcm_buffer[3]);
+  printf("%s: buffer data: 0x%04X, 0x%04X, 0x%04X, 0x%04X\n", __func__,
+         (uint16_t) m_pcm_buffer[0], (uint16_t) m_pcm_buffer[1],
+         (uint16_t) m_pcm_buffer[2], (uint16_t) m_pcm_buffer[3]);
 }
 
 /**
@@ -88,17 +88,21 @@ static void start_dma(SAI_HandleTypeDef *hAudioInSai) {
   MicParams.SampleRate = 16000;
   MicParams.Volume = AUDIO_VOLUME_INPUT;
 
-  if (CCA02M2_AUDIO_IN_Init(CCA02M2_AUDIO_INSTANCE, &MicParams) != BSP_ERROR_NONE)
-  {
+  int32_t result = CCA02M2_AUDIO_IN_Init(CCA02M2_AUDIO_INSTANCE, &MicParams);
+  if (result != BSP_ERROR_NONE) {
+    printf("MIC: ERROR: Audio init failed.\n");
     Error_Handler();
   }
 
   // Start DMA.
-  int32_t result = CCA02M2_AUDIO_IN_Record(CCA02M2_AUDIO_INSTANCE, (uint8_t *) m_pdm_buffer, AUDIO_IN_BUFFER_SIZE);
-  if (result != BSP_ERROR_NONE) {
-    printf("MIC: ERROR: DMA not started\n");
-  } else {
+  result = CCA02M2_AUDIO_IN_Record(CCA02M2_AUDIO_INSTANCE,
+                                   (uint8_t*) m_pdm_buffer,
+                                   AUDIO_IN_BUFFER_SIZE);
+  if (result == BSP_ERROR_NONE) {
     printf("MIC: DMA started OK\n");
+  } else {
+    printf("MIC: ERROR: DMA failed.\n");
+    Error_Handler();
   }
 }
 

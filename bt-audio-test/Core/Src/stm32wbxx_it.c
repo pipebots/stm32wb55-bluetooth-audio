@@ -137,6 +137,7 @@ void HardFault_Handler(void)
   // which actually works without much faff!
   __asm volatile
   (
+          ".align 8 \n"
           " tst lr, #4                                                \n"
           " ite eq                                                    \n"
           " mrseq r0, msp                                             \n"
